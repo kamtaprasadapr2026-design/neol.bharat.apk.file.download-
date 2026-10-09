@@ -1,0 +1,6 @@
+{
+  "name": "Neol Bharat",
+  "description": "Unified education, entertainment, and administrative management platform for students and users.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

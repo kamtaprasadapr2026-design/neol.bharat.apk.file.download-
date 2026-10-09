@@ -1,0 +1,169 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Admin authorization: Verified bootstrap admin email OR doc in admins collection
+    function isAdmin() {
+      return isSignedIn() && (
+        (request.auth.token.email == 'kamtaprasadapr2026@gmail.com' && request.auth.token.email_verified == true) ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // --- Users Collection ---
+    match /users/{userId} {
+      // User can read their own profile, or Admin can read any user profile
+      allow get: if isOwner(userId) || isAdmin();
+      // Admin can list users, normal user can only list if query is constrained to self
+      allow list: if isAdmin() || (isSignedIn() && resource.data.uid == request.auth.uid);
+
+      // Create: User initializes their profile. Normal user cannot self-assign role = 'ADMIN'
+      allow create: if isSignedIn() && (
+        (isOwner(userId) && incoming().uid == request.auth.uid && incoming().role != 'ADMIN') ||
+        isAdmin()
+      );
+
+      // Update: User can update their preferences (e.g. selectedMode, displayName, photoUrl) but CANNOT escalate role or unblock self. Admin can update everything.
+      allow update: if (
+        isAdmin() ||
+        (
+          isOwner(userId) &&
+          incoming().uid == existing().uid &&
+          incoming().role == existing().role &&
+          incoming().isBlocked == existing().isBlocked &&
+          incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'photoUrl', 'selectedMode', 'updatedAt'])
+        )
+      );
+
+      allow delete: if isAdmin();
+    }
+
+    // --- Student Profiles Collection ---
+    match /studentProfiles/{userId} {
+      allow get: if isOwner(userId) || isAdmin();
+      allow list: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow create, update, delete: if isAdmin() || (
+        isOwner(userId) &&
+        incoming().userId == request.auth.uid &&
+        (
+          !('enrolledCourses' in existing()) ||
+          incoming().enrolledCourses == existing().enrolledCourses
+        ) &&
+        (
+          !('unlockedVideos' in existing()) ||
+          incoming().unlockedVideos == existing().unlockedVideos
+        )
+      );
+    }
+
+    // --- Courses Collection ---
+    match /courses/{courseId} {
+      // Courses can be read by anyone
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+
+      // Nested Lessons
+      match /lessons/{lessonId} {
+        allow get, list: if true;
+        allow create, update, delete: if isAdmin();
+      }
+    }
+
+    // --- Videos Collection ---
+    match /videos/{videoId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // --- Shorts Collection ---
+    match /shorts/{shortId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // --- Attendance Collection ---
+    match /attendance/{attendanceId} {
+      // Student can only read their own attendance records
+      allow get: if isAdmin() || (isSignedIn() && existing().userId == request.auth.uid);
+      allow list: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      // ONLY Admin can create, modify, or delete attendance
+      allow create, update, delete: if isAdmin();
+    }
+
+    // --- Fees Collection ---
+    match /fees/{feeId} {
+      // Student can only read their own fee records
+      allow get: if isAdmin() || (isSignedIn() && existing().userId == request.auth.uid);
+      allow list: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      // ONLY Admin can create, modify, or delete fee records
+      allow create, update, delete: if isAdmin();
+    }
+
+    // --- Payments Collection ---
+    match /payments/{paymentId} {
+      allow get: if isAdmin() || (isSignedIn() && existing().userId == request.auth.uid);
+      allow list: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+
+      // Student can submit a payment request with status 'PENDING_VERIFICATION'. Student CANNOT mark status as 'VERIFIED'
+      allow create: if isSignedIn() && (
+        isAdmin() || (
+          incoming().userId == request.auth.uid &&
+          incoming().status == 'PENDING_VERIFICATION'
+        )
+      );
+
+      // ONLY Admin can update payment verification status
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // --- Receipts Collection ---
+    match /receipts/{receiptId} {
+      allow get: if isAdmin() || (isSignedIn() && existing().userId == request.auth.uid);
+      allow list: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      // ONLY Admin (or verified server process) can create receipts
+      allow create, update, delete: if isAdmin();
+    }
+
+    // --- Announcements Collection ---
+    match /announcements/{announcementId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // --- AppSettings Collection ---
+    match /appSettings/{configId} {
+      // App settings, institute branding, version info and public config can be read by anyone
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // --- Admins Collection ---
+    match /admins/{adminId} {
+      allow get, list: if isAdmin();
+      allow create, update, delete: if isAdmin();
+    }
+  }
+}

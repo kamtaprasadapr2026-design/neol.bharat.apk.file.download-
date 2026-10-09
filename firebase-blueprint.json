@@ -1,0 +1,269 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User account registration and mode preferences",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "photoUrl": { "type": "string" },
+        "role": { "type": "string", "enum": ["ADMIN", "STUDENT", "ENTERTAINMENT"] },
+        "selectedMode": { "type": "string", "enum": ["STUDENT", "ENTERTAINMENT"] },
+        "isBlocked": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "displayName", "role", "selectedMode", "isBlocked", "createdAt", "updatedAt"]
+    },
+    "StudentProfile": {
+      "title": "StudentProfile",
+      "description": "Educational details for students",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "studentId": { "type": "string" },
+        "fullName": { "type": "string" },
+        "email": { "type": "string" },
+        "gradeClass": { "type": "string" },
+        "phoneNumber": { "type": "string" },
+        "enrolledCourses": { "type": "array" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "studentId", "fullName", "email", "gradeClass", "createdAt", "updatedAt"]
+    },
+    "Course": {
+      "title": "Course",
+      "description": "Educational course item (free or paid)",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "category": { "type": "string" },
+        "thumbnailUrl": { "type": "string" },
+        "price": { "type": "number" },
+        "isFree": { "type": "boolean" },
+        "isPublished": { "type": "boolean" },
+        "instructorName": { "type": "string" },
+        "lessonsCount": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "title", "description", "category", "price", "isFree", "isPublished", "createdAt", "updatedAt"]
+    },
+    "Lesson": {
+      "title": "Lesson",
+      "description": "Individual lecture or study material within a course",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "courseId": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "videoUrl": { "type": "string" },
+        "pdfUrl": { "type": "string" },
+        "durationMinutes": { "type": "number" },
+        "orderIndex": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "courseId", "title", "orderIndex", "createdAt"]
+    },
+    "Video": {
+      "title": "Video",
+      "description": "Video stream content for education or entertainment",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "videoUrl": { "type": "string" },
+        "thumbnailUrl": { "type": "string" },
+        "category": { "type": "string" },
+        "section": { "type": "string", "enum": ["EDUCATION", "ENTERTAINMENT"] },
+        "views": { "type": "number" },
+        "likes": { "type": "number" },
+        "isPublished": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "title", "videoUrl", "category", "section", "views", "likes", "isPublished", "createdAt"]
+    },
+    "Short": {
+      "title": "Short",
+      "description": "Short form video content",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "videoUrl": { "type": "string" },
+        "thumbnailUrl": { "type": "string" },
+        "creatorName": { "type": "string" },
+        "section": { "type": "string", "enum": ["EDUCATION", "ENTERTAINMENT"] },
+        "likesCount": { "type": "number" },
+        "isPublished": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "title", "videoUrl", "section", "likesCount", "isPublished", "createdAt"]
+    },
+    "AttendanceRecord": {
+      "title": "AttendanceRecord",
+      "description": "Student daily attendance status",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "studentName": { "type": "string" },
+        "date": { "type": "string" },
+        "status": { "type": "string", "enum": ["PRESENT", "ABSENT", "LEAVE"] },
+        "notes": { "type": "string" },
+        "recordedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "studentName", "date", "status", "recordedAt"]
+    },
+    "FeeRecord": {
+      "title": "FeeRecord",
+      "description": "Student monthly fee status",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "studentName": { "type": "string" },
+        "month": { "type": "string" },
+        "totalAmount": { "type": "number" },
+        "paidAmount": { "type": "number" },
+        "pendingAmount": { "type": "number" },
+        "status": { "type": "string", "enum": ["PAID", "PARTIAL", "DUE"] },
+        "dueDate": { "type": "string" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "studentName", "month", "totalAmount", "paidAmount", "pendingAmount", "status", "updatedAt"]
+    },
+    "PaymentRecord": {
+      "title": "PaymentRecord",
+      "description": "Payment transaction and admin verification state",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "userEmail": { "type": "string" },
+        "amount": { "type": "number" },
+        "purpose": { "type": "string", "enum": ["COURSE_PURCHASE", "MONTHLY_FEE"] },
+        "targetId": { "type": "string" },
+        "targetName": { "type": "string" },
+        "transactionReference": { "type": "string" },
+        "paymentMethod": { "type": "string" },
+        "status": { "type": "string", "enum": ["PENDING_VERIFICATION", "VERIFIED", "REJECTED"] },
+        "verifiedBy": { "type": "string" },
+        "receiptId": { "type": "string" },
+        "notes": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "verifiedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "userName", "amount", "purpose", "targetId", "status", "createdAt"]
+    },
+    "Receipt": {
+      "title": "Receipt",
+      "description": "Generated receipt for verified transactions",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "receiptNumber": { "type": "string" },
+        "paymentId": { "type": "string" },
+        "userId": { "type": "string" },
+        "studentName": { "type": "string" },
+        "studentId": { "type": "string" },
+        "userEmail": { "type": "string" },
+        "purpose": { "type": "string" },
+        "targetName": { "type": "string" },
+        "amount": { "type": "number" },
+        "paymentDate": { "type": "string", "format": "date-time" },
+        "status": { "type": "string" },
+        "transactionReference": { "type": "string" }
+      },
+      "required": ["id", "receiptNumber", "paymentId", "userId", "studentName", "amount", "paymentDate", "status"]
+    },
+    "Announcement": {
+      "title": "Announcement",
+      "description": "Broadcast announcement for education or app updates",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "targetAudience": { "type": "string", "enum": ["ALL", "STUDENT", "ENTERTAINMENT"] },
+        "priority": { "type": "string", "enum": ["NORMAL", "URGENT"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "title", "content", "targetAudience", "createdAt"]
+    },
+    "AppSettings": {
+      "title": "AppSettings",
+      "description": "Global configurable branding and payment settings",
+      "type": "object",
+      "properties": {
+        "upiId": { "type": "string" },
+        "upiPayeeName": { "type": "string" },
+        "qrImageUrl": { "type": "string" },
+        "paymentInstructions": { "type": "string" },
+        "announcementBanner": { "type": "string" },
+        "supportPhone": { "type": "string" },
+        "supportEmail": { "type": "string" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["upiId", "upiPayeeName", "paymentInstructions", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "User profiles and mode preferences"
+    },
+    "/studentProfiles/{userId}": {
+      "schema": { "$ref": "#/entities/StudentProfile" },
+      "description": "Extended student education profiles"
+    },
+    "/courses/{courseId}": {
+      "schema": { "$ref": "#/entities/Course" },
+      "description": "Education courses catalogue"
+    },
+    "/courses/{courseId}/lessons/{lessonId}": {
+      "schema": { "$ref": "#/entities/Lesson" },
+      "description": "Course lectures and study documents"
+    },
+    "/videos/{videoId}": {
+      "schema": { "$ref": "#/entities/Video" },
+      "description": "Videos collection"
+    },
+    "/shorts/{shortId}": {
+      "schema": { "$ref": "#/entities/Short" },
+      "description": "Short form video feed"
+    },
+    "/attendance/{attendanceId}": {
+      "schema": { "$ref": "#/entities/AttendanceRecord" },
+      "description": "Student attendance ledger"
+    },
+    "/fees/{feeId}": {
+      "schema": { "$ref": "#/entities/FeeRecord" },
+      "description": "Student fee management ledger"
+    },
+    "/payments/{paymentId}": {
+      "schema": { "$ref": "#/entities/PaymentRecord" },
+      "description": "Payment requests and verified payments"
+    },
+    "/receipts/{receiptId}": {
+      "schema": { "$ref": "#/entities/Receipt" },
+      "description": "Receipts for verified payments"
+    },
+    "/announcements/{announcementId}": {
+      "schema": { "$ref": "#/entities/Announcement" },
+      "description": "Broadcast notifications & announcements"
+    },
+    "/appSettings/{configId}": {
+      "schema": { "$ref": "#/entities/AppSettings" },
+      "description": "App branding and payment settings"
+    }
+  }
+}
